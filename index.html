@@ -1,0 +1,311 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>所谓离谱 · KA21群友主题曲</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      background: #0d0d0d;
+      color: #e8e0d0;
+      font-family: "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", sans-serif;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 48px 20px 80px;
+    }
+
+    /* 顶部标签 */
+    .tag {
+      font-size: 11px;
+      letter-spacing: 3px;
+      color: #888;
+      text-transform: uppercase;
+      margin-bottom: 40px;
+    }
+
+    /* 封面区 */
+    .cover {
+      width: 220px;
+      height: 220px;
+      border-radius: 50%;
+      background: url('cover.jpg') center/cover no-repeat;
+      box-shadow: 0 0 60px rgba(201,169,110,0.25);
+      margin-bottom: 32px;
+      animation: spin 20s linear infinite;
+      animation-play-state: paused;
+    }
+    .cover.playing { animation-play-state: running; }
+
+    @keyframes spin {
+      from { transform: rotate(0deg); }
+      to   { transform: rotate(360deg); }
+    }
+
+    /* 标题 */
+    h1 {
+      font-size: 28px;
+      font-weight: 700;
+      letter-spacing: 2px;
+      margin-bottom: 6px;
+      text-align: center;
+    }
+
+    .subtitle {
+      font-size: 13px;
+      color: #888;
+      margin-bottom: 40px;
+      text-align: center;
+    }
+
+    /* 播放器 */
+    .player {
+      width: 100%;
+      max-width: 480px;
+      margin-bottom: 48px;
+    }
+
+    audio {
+      display: none;
+    }
+
+    .controls {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      margin-bottom: 16px;
+    }
+
+    .btn-play {
+      width: 56px;
+      height: 56px;
+      border-radius: 50%;
+      background: #c9a96e;
+      border: none;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 22px;
+      flex-shrink: 0;
+      transition: transform 0.15s, background 0.15s;
+    }
+    .btn-play:hover { background: #e0c080; transform: scale(1.05); }
+
+    .progress-wrap {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    .progress-bar {
+      width: 100%;
+      height: 4px;
+      background: #333;
+      border-radius: 2px;
+      cursor: pointer;
+      position: relative;
+    }
+    .progress-fill {
+      height: 100%;
+      background: #c9a96e;
+      border-radius: 2px;
+      width: 0%;
+      transition: width 0.1s linear;
+    }
+
+    .time {
+      font-size: 11px;
+      color: #666;
+      display: flex;
+      justify-content: space-between;
+    }
+
+    /* 歌词 */
+    .lyrics-wrap {
+      width: 100%;
+      max-width: 480px;
+    }
+
+    .lyrics-title {
+      font-size: 11px;
+      letter-spacing: 3px;
+      color: #555;
+      margin-bottom: 20px;
+      text-align: center;
+    }
+
+    .lyrics {
+      line-height: 2.2;
+      font-size: 16px;
+      color: #bbb;
+      text-align: center;
+    }
+
+    .lyrics .stanza {
+      margin-bottom: 28px;
+    }
+
+    .lyrics .line {
+      display: block;
+      transition: color 0.3s;
+    }
+
+    .lyrics .chorus {
+      color: #c9a96e;
+      font-weight: 500;
+    }
+
+    .lyrics .ending {
+      color: #888;
+      font-style: italic;
+      font-size: 14px;
+    }
+
+    /* 底部 */
+    .footer {
+      margin-top: 60px;
+      font-size: 11px;
+      color: #444;
+      text-align: center;
+      letter-spacing: 1px;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="tag">KA21 · 群友主题曲</div>
+
+  <div class="cover" id="cover"></div>
+
+  <h1>所谓离谱</h1>
+  <div class="subtitle">离谱（问号版）· KA21</div>
+
+  <div class="player">
+    <audio id="audio" src="所谓离谱.mp3" preload="metadata"></audio>
+
+    <div class="controls">
+      <button class="btn-play" id="btnPlay" onclick="togglePlay()">▶</button>
+      <div class="progress-wrap">
+        <div class="progress-bar" id="progressBar" onclick="seek(event)">
+          <div class="progress-fill" id="progressFill"></div>
+        </div>
+        <div class="time">
+          <span id="timeNow">0:00</span>
+          <span id="timeTot">0:00</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="lyrics-wrap">
+    <div class="lyrics-title">LYRICS · 歌词</div>
+    <div class="lyrics">
+      <div class="stanza">
+        <span class="line">六点半的闹钟不是手机</span>
+        <span class="line">是窗台上那只乌鸦在叹息</span>
+        <span class="line">七只毛孩子排队等早餐</span>
+        <span class="line">她系好鞋带 又堵在路上</span>
+      </div>
+      <div class="stanza">
+        <span class="line">二十公里沉默的通勤</span>
+        <span class="line">她把心事录进手机里</span>
+        <span class="line">说害怕面对最真实的自己</span>
+        <span class="line">却还是按下了那个 recording</span>
+      </div>
+      <div class="stanza">
+        <span class="line chorus">离谱 离谱</span>
+        <span class="line chorus">谁说认真生活是件容易的事</span>
+        <span class="line chorus">离谱 离谱</span>
+        <span class="line chorus">怕了也不停 这就是你的样子</span>
+      </div>
+      <div class="stanza">
+        <span class="line">烦杂尘世没能把她压低</span>
+        <span class="line">也没能让她丢掉那份期许</span>
+        <span class="line">深夜录音里她小声说着秘密</span>
+        <span class="line">总有一天 要活成另一个自己</span>
+      </div>
+      <div class="stanza">
+        <span class="line">从小城少年到中年的光影</span>
+        <span class="line">一路走来 从未停息</span>
+        <span class="line">那双细长温柔的眼睛</span>
+        <span class="line">看过的路 每步都算数的印记</span>
+      </div>
+      <div class="stanza">
+        <span class="line chorus">离谱 离谱</span>
+        <span class="line chorus">谁说平凡日子不值得一首歌曲</span>
+        <span class="line chorus">离谱 离谱</span>
+        <span class="line chorus">你比你以为的自己 有趣得多的离奇</span>
+      </div>
+      <div class="stanza">
+        <span class="line">有人问她为什么叫离谱</span>
+        <span class="line">她说 认真活着这件事</span>
+        <span class="line">本身就很离谱</span>
+      </div>
+      <div class="stanza">
+        <span class="line ending">晚安 离谱</span>
+        <span class="line ending">明天清晨 太阳还会升起</span>
+        <span class="line ending">晚安 离谱</span>
+        <span class="line ending">这首歌是一份礼物</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="footer">KA21 精英分队 · 每个人都值得一首歌</div>
+
+  <script>
+    const audio = document.getElementById('audio');
+    const btn = document.getElementById('btnPlay');
+    const fill = document.getElementById('progressFill');
+    const bar  = document.getElementById('progressBar');
+    const now  = document.getElementById('timeNow');
+    const tot  = document.getElementById('timeTot');
+    const cover = document.getElementById('cover');
+
+    function fmt(s) {
+      const m = Math.floor(s / 60);
+      const sec = Math.floor(s % 60);
+      return m + ':' + (sec < 10 ? '0' : '') + sec;
+    }
+
+    audio.addEventListener('loadedmetadata', () => {
+      tot.textContent = fmt(audio.duration);
+    });
+
+    audio.addEventListener('timeupdate', () => {
+      if (!audio.duration) return;
+      const pct = (audio.currentTime / audio.duration) * 100;
+      fill.style.width = pct + '%';
+      now.textContent = fmt(audio.currentTime);
+    });
+
+    audio.addEventListener('ended', () => {
+      btn.textContent = '▶';
+      cover.classList.remove('playing');
+    });
+
+    function togglePlay() {
+      if (audio.paused) {
+        audio.play();
+        btn.textContent = '⏸';
+        cover.classList.add('playing');
+      } else {
+        audio.pause();
+        btn.textContent = '▶';
+        cover.classList.remove('playing');
+      }
+    }
+
+    function seek(e) {
+      const rect = bar.getBoundingClientRect();
+      const pct = (e.clientX - rect.left) / rect.width;
+      audio.currentTime = pct * audio.duration;
+    }
+  </script>
+
+</body>
+</html>
